@@ -1,3 +1,4 @@
+```
 func InitSSSP(origin):
     dist(origin) ← 0
     pred(origin) ← Null
@@ -21,7 +22,8 @@ func Dijkstra(origin):
                     DecreaseKey(v, dist(v))
                 else
                     Insert(v, dist(v))
+```
 
-// References:
-// 1- https://jeffe.cs.illinois.edu/teaching/algorithms/book/Algorithms-JeffE.pdf [ Dijkstra ]
-// 2- https://www.geeksforgeeks.org/priority-queue-using-binary-heap/ [ Binary Heap ]
+References:
+1. https://jeffe.cs.illinois.edu/teaching/algorithms/book/Algorithms-JeffE.pdf [ Dijkstra ]
+1. https://www.geeksforgeeks.org/priority-queue-using-binary-heap/ [ Binary Heap ]
