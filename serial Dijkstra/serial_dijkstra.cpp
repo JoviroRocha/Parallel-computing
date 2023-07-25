@@ -5,11 +5,12 @@ struct Vertex {
     
     int id; // or string, IDK
     int weight;
+    Vertex * previous;
  
 };
 
 Vertex Heap[1000];
-int size = -1;
+int vertices_amount = -1;
 
 // Dijkstra implementation 
 // ...
@@ -35,9 +36,9 @@ int rightChild(int i)
 
 void shiftUp(int i)
 {
-    while (i > 0 && H[parent(i)].weight > H[i].weight) {
+    while (i > 0 && Heap[parent(i)].weight > Heap[i].weight) {
 
-        swap(H[parent(i)], H[i]);
+        swap(Heap[parent(i)], Heap[i]);
  
         i = parent(i);
     }
@@ -48,35 +49,35 @@ void shiftDown(int i)
     int minIndex = i;
  
     int l = leftChild(i);
-    if (l <= size && H[l].weight < H[minIndex].weight) {
+    if (l <= vertices_amount && Heap[l].weight < Heap[minIndex].weight) {
         minIndex = l;
     }
  
     int r = rightChild(i);
-    if (r <= size && H[r].weight < H[minIndex].weight) {
+    if (r <= vertices_amount && Heap[r].weight < Heap[minIndex].weight) {
         minIndex = r;
     }
  
     if (i != minIndex) {
-        swap(H[i], H[minIndex]);
+        swap(Heap[i], Heap[minIndex]);
         shiftDown(minIndex);
     }
 }
 
 void insert(Vertex p)
 {
-    size = size + 1;
-    H[size] = p;
+    vertices_amount = vertices_amount + 1;
+    Heap[vertices_amount] = p;
  
-    shiftUp(size);
+    shiftUp(vertices_amount);
 }
 
 Vertex extractMin()
 {
-    Vertex result = H[0];
+    Vertex result = Heap[0];
 
-    H[0] = H[size];
-    size = size - 1;
+    Heap[0] = Heap[vertices_amount];
+    vertices_amount = vertices_amount - 1;
  
     shiftDown(0);
     return result;
@@ -85,5 +86,5 @@ Vertex extractMin()
 void changePriority(int i, int newWeight)
 {
     Heap[i].weight = newWeight;
-    shiftUp(i)
+    shiftUp(i);
 }
