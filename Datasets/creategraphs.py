@@ -2,35 +2,35 @@ import networkx as nx
 import random
 
 
-# Função para gerar um grafo com pesos nas arestas e grau médio desejado
-def gerar_grafo_com_peso_e_grau_medio(num_vertices, grau_medio):
-    # Cálculo do número de arestas desejado para atingir o grau médio
-    num_arestas = int(num_vertices * grau_medio / 2)
+# Function to generate a graph with edge weights and desired average degree
+def generate_graph(num_vertex, middle_degree):
+    # Calculation of the desired number of edges to reach the average degree
+    num_edges = int(num_vertex * middle_degree / 2)
 
-    # Criação de um grafo vazio
-    grafo = nx.Graph()
+    # Creating an empty chart
+    graph = nx.Graph()
 
-    # Adicionar vértices ao grafo
-    for v in range(num_vertices):
-        grafo.add_node(v)
+    # Add vertex to the graph
+    for v in range(num_vertex):
+        graph.add_node(v)
 
-    # Adicionar as arestas ao grafo até atingir o número desejado
-    for i in range(num_arestas):
+    # Add edges to the graph until you reach the desired number
+    for i in range(num_edges):
         while 1:
-            u = random.randint(0, num_vertices)
-            v = random.randint(0, num_vertices)
-            if u != v and not grafo.has_edge(u,v):
-                peso = random.randint(1, 100)
-                grafo.add_edge(u, v, weight=peso)
+            u = random.randint(0, num_vertex)
+            v = random.randint(0, num_vertex)
+            if u != v and not graph.has_edge(u,v):
+                weight = random.randint(1, 100)
+                graph.add_edge(u, v, weight=weight)
                 break
 
-    return grafo
+    return graph
 
-# Exemplo de uso:
-num_vertices = [100000]
-dividendo = [5000]
-for i in num_vertices:
-    for j in dividendo:
-        grafo = gerar_grafo_com_peso_e_grau_medio(i, j)
-        name = f"grafo_{i}_{j}"
-        nx.write_weighted_edgelist(grafo, name)
+# Example:
+num_vertex = [100]
+multiplier = [13]
+for i in num_vertex:
+    for j in multiplier:
+        graph = generate_graph(i, j)
+        name = f"graph_{i}_{j}"
+        nx.write_weighted_edgelist(graph, name)
