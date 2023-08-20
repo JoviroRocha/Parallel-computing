@@ -183,6 +183,8 @@ int main() {
         new_file.close(); 
     }
 
+    //Start timer here
+
     // initSSP
     int result[amount_vertex];
     PriorityQueue dist;
@@ -216,6 +218,7 @@ int main() {
             }
         }
     }
+    //End timer here
 
     for(int i = 0; i < amount_vertex; i++){
             printf("%d: %d\n", i + 1, result[i]);
