@@ -8,47 +8,52 @@ using namespace std;
 
 const size_t threadsPerBlock = 256;
 
-__global__ void dijkstra_update(int *result, int *min, int *device_linear_matrix, int amount_vertex){
+__global__ void dijkstra_update(int *result, int *visited, int *device_linear_matrix, int amount_vertex){
     int index = blockIdx.x * blockDim.x + threadIdx.x;
     int stride = blockDim.x * gridDim.x;
-    // If there is no edge connecting the node
-    if(result[*min] == INT_MAX - 1){
-        result[*min] = 0;
-        return;
-    }
-    // else
     for(; index < amount_vertex; index += stride){
-        int position = *min * amount_vertex + index;
-        int edgeweight = device_linear_matrix[position];
-        if(edgeweight == -1){
-            continue;
-        }
-        int newweight = result[*min] + device_linear_matrix[position];
-        if (newweight < result[index]){
-            result[index] = newweight;
+
+        // stop execution if index was visited
+        if(visited[index - 1] == 1 || index == 0) continue;
+
+        for(int loop = 1; loop < amount_vertex; loop++){
+            if(visited[loop - 1] == 1 && loop != index){
+            
+                int position = (loop - 1) * amount_vertex + index;// Can change the index and the loop and remove -1
+                int edgeweight = device_linear_matrix[position];
+                if(edgeweight == -1 || result[loop - 1] == INT_MAX -1){
+                    continue;
+                }
+                int newweight = result[loop - 1] + edgeweight;
+                if (newweight < result[index - 1]){
+                    result[index - 1] = newweight;
+                }
+
+            }
         }
     }
 }
 
-__global__ void dijkstra_minor(int* result, int* visited, int* min, int n) {
+__global__ void dijkstra_minor(int* result, int* visited, int n) {
    int minor = INT_MAX;
+   int index_min;
     for( int x = 0; x < n; x++){
         if(result[x] < minor && visited[x] == 0){
             minor = result[x];
-            *min = x;
+            index_min = x;
         }
    }
-   visited[*min] = 1;
+   visited[index_min] = 1;
 }
 
-__global__ void initSSP(int *min, int *visited, int amount_vertex){
+__global__ void initSSP(int *result, int *visited, int amount_vertex){
     int index = blockIdx.x * blockDim.x + threadIdx.x;
     int stride = blockDim.x * gridDim.x;
     for(; index < amount_vertex; index += stride){
         if(index == 0){
-            min[index] = 0;
+            result[index] = 0;
         } else{
-            min[index] = INT_MAX - 1;
+            result[index] = INT_MAX - 1;
         }
         visited[index] = 0;
     }
@@ -108,29 +113,21 @@ int main() {
     // Declare some dijkstra variables:
     int * result;
     int * visited;
-    int * min;
     cudaMalloc((void **)&result, amount_vertex * sizeof(int));
     cudaMalloc((void **)&visited, amount_vertex * sizeof(int));
-    cudaMalloc((void**)&min, sizeof(int));
 
     //InitSSP
     initSSP<<<blocksPerGrid, threadsPerBlock>>>(result, visited, amount_vertex);
     cudaDeviceSynchronize();
 
-    //TESTING
-    int * mmm = new int;
-    //
-
     //Dijkstra
     for(int i = 0; i < amount_vertex; i++){
         //find minor
-        dijkstra_minor<<<1, 1>>>(result, visited, min, amount_vertex);
+        dijkstra_minor<<<1, 1>>>(result, visited, amount_vertex);
         cudaDeviceSynchronize();
-        cudaMemcpy(mmm, min, sizeof(int), cudaMemcpyDeviceToHost);
-        printf("%d ", *mmm);
 
         // update minor brothers
-        dijkstra_update<<<blocksPerGrid, threadsPerBlock>>>(result, min, device_linear_matrix, amount_vertex);
+        dijkstra_update<<<blocksPerGrid, threadsPerBlock>>>(result, visited, device_linear_matrix, amount_vertex);
         cudaDeviceSynchronize();
     }
 
@@ -142,7 +139,6 @@ int main() {
     }
     //Free memory
     delete [] res;
-    cudaFree(min);
     cudaFree(visited);
     cudaFree(device_linear_matrix);
     return 0;
